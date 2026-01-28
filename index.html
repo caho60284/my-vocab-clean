@@ -2,92 +2,123 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 <title>My Vocab – Doc Chan Edition</title>
 
 <style>
 :root{
-  --bg:#f4f5fb;
+  --bg:#f4f6fb;
   --card:#ffffff;
-  --blue:#0a84ff;
-  --purple:#5e5ce6;
+  --primary:#1e88ff;
+  --secondary:#6a5acd;
   --text:#111;
   --muted:#666;
 }
-*{box-sizing:border-box}
+
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto}
+
 body{
   margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Arial;
   background:var(--bg);
   color:var(--text);
-  padding:16px;
 }
-h1{margin:0 0 6px;font-size:28px}
-.count{font-weight:600;margin-bottom:10px}
 
-.top{
+/* ===== HEADER FIXED ===== */
+header{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:var(--bg);
+  padding:14px 16px 10px;
+}
+
+h1{
+  margin:0 0 6px;
+  font-size:26px;
+  font-weight:800;
+}
+
+.count{
+  font-size:14px;
+  color:var(--muted);
+  margin-bottom:10px;
+}
+
+.top-row{
   display:flex;
   gap:10px;
   align-items:center;
-  margin-bottom:14px;
 }
-.top input{
+
+.search{
   flex:1;
   padding:12px;
   border-radius:14px;
   border:1px solid #ddd;
-  font-size:16px;
+  font-size:15px;
 }
 
 .btn{
+  padding:12px 16px;
+  border-radius:14px;
   border:none;
-  color:#fff;
+  font-size:14px;
   font-weight:700;
-  padding:12px 18px;
-  border-radius:18px;
-  font-size:16px;
-  cursor:pointer;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  gap:6px;
 }
-.import{background:var(--blue)}
-.export{background:var(--purple)}
 
-.list{margin-top:10px}
+.import{background:var(--primary)}
+.export{background:var(--secondary)}
+
+.add-btn{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:#fff;
+  border:1px solid #ddd;
+  font-size:26px;
+  font-weight:700;
+  color:var(--primary);
+}
+
+/* ===== LIST ===== */
+main{padding:12px 16px 30px}
+
 .card{
   background:var(--card);
-  border-radius:20px;
+  border-radius:18px;
   padding:14px;
   margin-bottom:12px;
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
-.left{max-width:75%}
-.word{font-size:20px;font-weight:800}
-.ipa{color:var(--muted);margin:2px 0}
-.meaning{margin-top:2px}
 
-.actions{
+.word{
+  font-size:20px;
+  font-weight:800;
+}
+
+.pron{
+  font-size:14px;
+  color:var(--muted);
+}
+
+.mean{
+  margin-top:4px;
+  font-size:15px;
+}
+
+.icons{
   display:flex;
-  gap:12px;
-  font-size:26px;
-}
-.actions span{cursor:pointer}
-
-.add-empty{
-  margin-top:40px;
-  text-align:center;
-}
-.add-empty button{
-  background:var(--blue);
-  color:#fff;
-  border:none;
-  padding:14px 22px;
-  border-radius:20px;
-  font-size:18px;
-  font-weight:700;
+  gap:14px;
+  font-size:22px;
 }
 
-/* MODAL */
+/* ===== MODAL ===== */
 .modal{
   position:fixed;
   inset:0;
@@ -95,213 +126,175 @@ h1{margin:0 0 6px;font-size:28px}
   display:none;
   align-items:center;
   justify-content:center;
+  z-index:200;
 }
-.box{
+
+.modal-box{
   background:#fff;
   width:90%;
   max-width:420px;
-  border-radius:22px;
-  padding:16px;
+  border-radius:18px;
+  padding:14px;
 }
-.box input,.box textarea{
+
+.modal-box input,
+.modal-box textarea{
   width:100%;
-  padding:12px;
+  padding:10px;
   margin-bottom:8px;
-  border-radius:14px;
+  border-radius:12px;
   border:1px solid #ddd;
-  font-size:16px;
+  font-size:14px;
 }
-.play-row{
-  display:flex;
-  gap:10px;
-  margin-bottom:10px;
-}
-.play-row button{
-  flex:1;
-  border:none;
-  border-radius:14px;
-  padding:12px;
-  font-weight:700;
-  cursor:pointer;
-}
-.play{background:var(--blue);color:#fff}
-.slow{background:#34c759;color:#fff}
 
 .modal-actions{
   display:flex;
   gap:10px;
 }
-.save{background:var(--blue);color:#fff}
-.del{background:#ff3b30;color:#fff}
-.cancel{background:#aaa;color:#fff}
+
+.save{background:var(--primary);flex:1}
+.cancel{background:#aaa;flex:1}
 </style>
 </head>
 
 <body>
 
-<h1>📘 My Vocab – Doc Chan Edition</h1>
-<div class="count" id="count">Total vocabulary: 0 words</div>
+<header>
+  <h1>📘 My Vocab – Doc Chan Edition</h1>
+  <div class="count" id="count">Total vocabulary: 0 words</div>
 
-<div class="top">
-  <input id="search" placeholder="Search word..." oninput="render()">
-  <label class="btn import">
-    📥 Import
-    <input type="file" hidden accept=".csv" onchange="importCSV(event)">
-  </label>
-  <button class="btn export" onclick="exportCSV()">📤 Export</button>
-</div>
+  <div class="top-row">
+    <input class="search" placeholder="Search word..." oninput="render()" id="search"/>
+    <button class="add-btn" onclick="openModal()">＋</button>
+  </div>
 
-<div class="list" id="list"></div>
+  <div class="top-row" style="margin-top:10px">
+    <button class="btn import" onclick="importCSV()">📥 Import</button>
+    <button class="btn export" onclick="exportCSV()">📤 Export</button>
+  </div>
+</header>
 
-<div class="add-empty" id="empty">
-  <button onclick="openAdd()">➕ Add first word</button>
-</div>
+<main id="list"></main>
 
 <!-- MODAL -->
 <div class="modal" id="modal">
-  <div class="box">
+  <div class="modal-box">
     <input id="mWord" placeholder="Word">
-    <input id="mIPA" placeholder="Pronunciation (IPA)">
-    <input id="mMeaning" placeholder="Meaning">
-    <textarea id="mExample" placeholder="Example sentence"></textarea>
-
-    <div class="play-row">
-      <button class="play" onclick="speak(false)">🔊 Word</button>
-      <button class="slow" onclick="speak(true)">🐢 Slow</button>
-    </div>
+    <input id="mPron" placeholder="Pronunciation">
+    <input id="mMean" placeholder="Meaning">
+    <textarea id="mEx" placeholder="Example"></textarea>
 
     <div class="modal-actions">
-      <button class="btn save" onclick="save()">Save</button>
-      <button class="btn del" onclick="remove()">Delete</button>
+      <button class="btn save" onclick="saveWord()">Save</button>
       <button class="btn cancel" onclick="closeModal()">Cancel</button>
     </div>
   </div>
 </div>
 
 <script>
-let vocab = JSON.parse(localStorage.getItem("myvocab")||"[]");
+let data = JSON.parse(localStorage.getItem("vocab")||"[]");
 let editIndex = null;
 
-function saveLS(){
-  localStorage.setItem("myvocab",JSON.stringify(vocab));
+function speak(text, slow=false){
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang="en-US";
+  u.rate = slow?0.6:1;
+  speechSynthesis.speak(u);
 }
 
 function render(){
-  const q=document.getElementById("search").value.toLowerCase();
-  const list=document.getElementById("list");
+  const q = search.value.toLowerCase();
   list.innerHTML="";
-  vocab.filter(v=>v.word.toLowerCase().includes(q)).forEach((v,i)=>{
-    const d=document.createElement("div");
-    d.className="card";
-    d.innerHTML=`
-      <div class="left" onclick="openEdit(${i})">
-        <div class="word">"${v.word}</div>
-        <div class="ipa">/${v.ipa||""}/</div>
-        <div class="meaning">${v.meaning}</div>
-      </div>
-      <div class="actions">
-        <span onclick="playWord(event,'${v.word}',1)">🔊</span>
-        <span onclick="playWord(event,'${v.word}',0.6)">🐢</span>
-        <span onclick="openEdit(${i})">✏️</span>
-      </div>
-    `;
-    list.appendChild(d);
-  });
-  document.getElementById("count").innerText=`Total vocabulary: ${vocab.length} words`;
-  document.getElementById("empty").style.display=vocab.length?"none":"block";
+  data
+    .filter(v=>v.word.toLowerCase().includes(q))
+    .forEach((v,i)=>{
+      const c=document.createElement("div");
+      c.className="card";
+      c.innerHTML=`
+        <div>
+          <div class="word">"${v.word}"</div>
+          <div class="pron">${v.pron||""}</div>
+          <div class="mean">${v.mean||""}</div>
+        </div>
+        <div class="icons">
+          <span onclick="speak('${v.word}')">🔊</span>
+          <span onclick="speak('${v.word}',true)">🐢</span>
+          <span onclick="edit(${i})">✏️</span>
+        </div>`;
+      list.appendChild(c);
+    });
+
+  count.innerText = `Total vocabulary: ${data.length} words`;
 }
 
-function openAdd(){
+function openModal(){
+  modal.style.display="flex";
+  mWord.value=mPron.value=mMean.value=mEx.value="";
   editIndex=null;
-  mWord.value="";
-  mIPA.value="";
-  mMeaning.value="";
-  mExample.value="";
-  modal.style.display="flex";
 }
-function openEdit(i){
-  editIndex=i;
-  const v=vocab[i];
-  mWord.value=v.word;
-  mIPA.value=v.ipa||"";
-  mMeaning.value=v.meaning;
-  mExample.value=v.example||"";
-  modal.style.display="flex";
-}
-function closeModal(){modal.style.display="none"}
 
-function save(){
-  const data={
+function closeModal(){ modal.style.display="none"; }
+
+function saveWord(){
+  const obj={
     word:mWord.value.trim(),
-    ipa:mIPA.value.trim(),
-    meaning:mMeaning.value.trim(),
-    example:mExample.value.trim()
+    pron:mPron.value.trim(),
+    mean:mMean.value.trim(),
+    ex:mEx.value.trim()
   };
-  if(!data.word||!data.meaning)return alert("Word & meaning required");
-  if(editIndex===null)vocab.push(data);
-  else vocab[editIndex]=data;
-  saveLS();render();closeModal();
-}
-function remove(){
-  if(editIndex!==null){
-    vocab.splice(editIndex,1);
-    saveLS();render();closeModal();
-  }
+  if(!obj.word) return;
+
+  if(editIndex===null) data.push(obj);
+  else data[editIndex]=obj;
+
+  localStorage.setItem("vocab",JSON.stringify(data));
+  closeModal();
+  render();
 }
 
-function playWord(e,text,rate){
-  e.stopPropagation();
-  const u=new SpeechSynthesisUtterance(text);
-  u.lang="en-US";
-  u.rate=rate;
-  speechSynthesis.speak(u);
-}
-function speak(slow){
-  const text=mWord.value;
-  if(!text)return;
-  const u=new SpeechSynthesisUtterance(text);
-  u.lang="en-US";
-  u.rate=slow?0.6:1;
-  speechSynthesis.speak(u);
+function edit(i){
+  editIndex=i;
+  const v=data[i];
+  mWord.value=v.word;
+  mPron.value=v.pron;
+  mMean.value=v.mean;
+  mEx.value=v.ex;
+  modal.style.display="flex";
 }
 
 function exportCSV(){
-  let csv="word,ipa,meaning,example\n";
-  vocab.forEach(v=>{
-    csv+=`${v.word},${v.ipa||""},${v.meaning},${(v.example||"").replace(/"/g,'""')}\n`;
+  let csv="word,pronunciation,meaning,example\n";
+  data.forEach(v=>{
+    csv+=`"${v.word}","${v.pron}","${v.mean}","${v.ex}"\n`;
   });
   const a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
-  a.download="myvocab.csv";
+  a.download="vocab.csv";
   a.click();
 }
 
-function importCSV(e){
-  const f=e.target.files[0];
-  if(!f)return;
-  const r=new FileReader();
-  r.onload=()=>{
-    const lines=r.result.split(/\r?\n/).filter(l=>l.trim());
-    vocab=[];
-    lines.forEach((l,i)=>{
-      if(i===0)return;
-      const c=l.split(",");
-      if(c[0]&&c[2]){
-        vocab.push({
-          word:c[0].trim(),
-          ipa:(c[1]||"").trim(),
-          meaning:c[2].trim(),
-          example:c.slice(3).join(",").trim()
-        });
-      }
-    });
-    saveLS();render();
+function importCSV(){
+  const i=document.createElement("input");
+  i.type="file";
+  i.accept=".csv";
+  i.onchange=e=>{
+    const r=new FileReader();
+    r.onload=()=>{
+      const rows=r.result.split("\n").slice(1);
+      rows.forEach(row=>{
+        if(!row.trim())return;
+        const [w,p,m,x]=row.split('","').map(s=>s.replace(/"/g,""));
+        data.push({word:w,pron:p,mean:m,ex:x});
+      });
+      localStorage.setItem("vocab",JSON.stringify(data));
+      render();
+    };
+    r.readAsText(e.target.files[0]);
   };
-  r.readAsText(f);
+  i.click();
 }
 
 render();
 </script>
-
 </body>
 </html>
