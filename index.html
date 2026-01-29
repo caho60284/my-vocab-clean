@@ -1,110 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>My Vocab – Doc Chan Edition</title>
 
 <style>
 *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
 body{margin:0;background:#f5f7fb}
-
-header{
-  position:sticky;top:0;z-index:10;
-  background:#fff;padding:16px;
-  box-shadow:0 2px 6px rgba(0,0,0,.08)
-}
-
+header{position:sticky;top:0;background:#fff;padding:16px;box-shadow:0 2px 6px rgba(0,0,0,.08);z-index:10}
 h1{margin:0 0 6px;font-size:22px}
-.count{font-size:14px;color:#666;margin-bottom:10px}
-
-.controls{
-  display:flex;
-  gap:8px;
-  align-items:center;
-}
-
-button{
-  border:none;
-  padding:10px 14px;
-  border-radius:10px;
-  font-size:14px;
-  cursor:pointer;
-  white-space:nowrap;
-}
-
+.count{font-size:14px;color:#666}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+button{border:none;padding:10px 14px;border-radius:10px;font-size:14px;cursor:pointer}
 .import{background:#1e88e5;color:#fff}
 .export{background:#6a5acd;color:#fff}
 .deleteall{background:#e53935;color:#fff}
-.add{background:#e3f2fd;font-size:22px}
+.add{margin-left:auto;background:#e3f2fd;font-size:22px}
 
-.search{
-  margin-top:12px;
-  width:100%;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid #ccc;
-  font-size:16px;
-}
+.search{width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid #ccc}
 
 main{padding:16px}
-
-.card{
-  background:#fff;
-  border-radius:16px;
-  padding:14px;
-  margin-bottom:12px;
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-}
-
+.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px}
 .word{font-weight:700;font-size:18px}
-.pron{font-style:italic;color:#555;margin-top:2px}
-.meaning{margin-top:4px;color:#333}
+.pron{font-style:italic;color:#555;margin:4px 0}
+.meaning{color:#333}
+.icons{margin-top:8px}
+.icons span{font-size:20px;margin-right:10px;cursor:pointer}
 
-.icons span{
-  font-size:20px;
-  margin-left:8px;
-  cursor:pointer;
-}
-
-.modal{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.45);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:99;
-}
-
-.modal-content{
-  background:#fff;
-  width:92%;
-  max-width:420px;
-  padding:16px;
-  border-radius:16px;
-}
-
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:99}
+.modal-content{background:#fff;width:90%;max-width:380px;padding:16px;border-radius:14px}
 .modal-content input,
 .modal-content textarea{
   width:100%;
   margin-bottom:8px;
   padding:10px;
-  border-radius:10px;
+  border-radius:8px;
   border:1px solid #ccc;
-  font-size:15px;
 }
+textarea{resize:vertical;min-height:60px}
 
-textarea{resize:none}
-
-.actions{display:flex;gap:8px;margin-top:10px}
-
+.modal-actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.audio1{background:#2ecc71;color:#fff;flex:1}
+.audio2{background:#27ae60;color:#fff;flex:1}
 .save{background:#1e88e5;color:#fff;flex:1}
-.cancel{background:#bbb;flex:1}
 .delete{background:#e53935;color:#fff;flex:1}
-.audio{background:#2ecc71;color:#fff;flex:1}
-.slow{background:#27ae60;color:#fff;flex:1}
+.cancel{background:#bbb;flex:1}
 </style>
 </head>
 
@@ -112,7 +53,7 @@ textarea{resize:none}
 
 <header>
   <h1>📘 My Vocab – Doc Chan Edition</h1>
-  <div class="count" id="count"></div>
+  <div class="count" id="count">Total vocabulary: 0 words</div>
 
   <div class="controls">
     <button class="import" onclick="importCSV()">📥 Import</button>
@@ -121,7 +62,7 @@ textarea{resize:none}
     <button class="add" onclick="openModal()">＋</button>
   </div>
 
-  <input class="search" id="search" placeholder="Search word or meaning..." oninput="render()">
+  <input id="search" class="search" placeholder="Search word or meaning..." oninput="render()">
 </header>
 
 <main id="list"></main>
@@ -129,18 +70,18 @@ textarea{resize:none}
 <!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modal-content">
-    <input id="mWord" placeholder="Word">
-    <input id="mPron" placeholder="Pronunciation (IPA)">
-    <input id="mMeaning" placeholder="Meaning">
-    <textarea id="mEx1" rows="2" placeholder="Example 1"></textarea>
-    <textarea id="mEx2" rows="2" placeholder="Example 2 (optional)"></textarea>
+    <input id="word" placeholder="Word">
+    <input id="pron" placeholder="Pronunciation (IPA)">
+    <input id="meaning" placeholder="Meaning">
+    <textarea id="example1" placeholder="Example 1"></textarea>
+    <textarea id="example2" placeholder="Example 2 (optional)"></textarea>
 
-    <div class="actions">
-      <button class="audio" onclick="speakWord()">🔊 Word</button>
-      <button class="slow" onclick="speakExample()">🐢 Example</button>
+    <div class="modal-actions">
+      <button class="audio1" onclick="speakExample1()">🔊 Example 1</button>
+      <button class="audio2" onclick="speakExample2()">🔊🔊 Example 2</button>
     </div>
 
-    <div class="actions">
+    <div class="modal-actions">
       <button class="save" onclick="save()">Save</button>
       <button class="delete" onclick="remove()">Delete</button>
       <button class="cancel" onclick="closeModal()">Cancel</button>
@@ -153,8 +94,8 @@ let data = JSON.parse(localStorage.getItem("vocab") || "[]");
 let editIndex = null;
 
 function render(){
-  const q = search.value.toLowerCase();
   const list = document.getElementById("list");
+  const q = document.getElementById("search").value.toLowerCase();
   list.innerHTML = "";
 
   const filtered = data.filter(v =>
@@ -165,22 +106,16 @@ function render(){
   document.getElementById("count").innerText =
     `Total vocabulary: ${data.length} words`;
 
-  filtered.forEach(v=>{
-    const i = data.indexOf(v);
+  filtered.forEach((v)=>{
     const d = document.createElement("div");
     d.className = "card";
     d.innerHTML = `
-      <div>
-        <div class="word">${v.word}</div>
-        <div class="pron">${v.pron||""}</div>
-        <div class="meaning">${v.meaning||""}</div>
-      </div>
+      <div class="word">${v.word}</div>
+      <div class="pron">${v.pron || ""}</div>
+      <div class="meaning">${v.meaning || ""}</div>
       <div class="icons">
-        <span onclick="play('${v.word}')">🔊</span>
-        <span onclick="playSlow('${v.word}')">🐢</span>
-        <span onclick="edit(${i})">✏️</span>
-      </div>
-    `;
+        <span onclick="edit(${data.indexOf(v)})">✏️</span>
+      </div>`;
     list.appendChild(d);
   });
 
@@ -189,70 +124,68 @@ function render(){
 
 function openModal(){
   editIndex = null;
-  mWord.value = mPron.value = mMeaning.value = mEx1.value = mEx2.value = "";
+  word.value = pron.value = meaning.value = example1.value = example2.value = "";
   modal.style.display = "flex";
 }
-
 function closeModal(){ modal.style.display = "none"; }
 
 function save(){
-  if(!mWord.value.trim()) return alert("Word required");
-  const v={
-    word:mWord.value,
-    pron:mPron.value,
-    meaning:mMeaning.value,
-    ex1:mEx1.value,
-    ex2:mEx2.value
+  if(!word.value.trim()) return alert("Word required");
+  const v = {
+    word: word.value,
+    pron: pron.value,
+    meaning: meaning.value,
+    example1: example1.value,
+    example2: example2.value
   };
-  if(editIndex===null) data.push(v);
-  else data[editIndex]=v;
+  if(editIndex === null) data.push(v);
+  else data[editIndex] = v;
   closeModal(); render();
 }
 
 function edit(i){
-  editIndex=i;
-  const v=data[i];
-  mWord.value=v.word;
-  mPron.value=v.pron||"";
-  mMeaning.value=v.meaning||"";
-  mEx1.value=v.ex1||"";
-  mEx2.value=v.ex2||"";
-  modal.style.display="flex";
+  editIndex = i;
+  const v = data[i];
+  word.value = v.word;
+  pron.value = v.pron;
+  meaning.value = v.meaning;
+  example1.value = v.example1 || "";
+  example2.value = v.example2 || "";
+  modal.style.display = "flex";
 }
 
 function remove(){
-  if(editIndex!==null && confirm("Delete this word?")){
+  if(editIndex !== null && confirm("Delete this word?")){
     data.splice(editIndex,1);
     closeModal(); render();
   }
 }
 
 function deleteAll(){
-  if(confirm("DELETE ALL VOCAB?")){
-    data=[]; render();
+  if(confirm("DELETE ALL VOCABULARY?")){
+    data = [];
+    render();
   }
 }
 
-function play(t){ speechSynthesis.speak(new SpeechSynthesisUtterance(t)); }
-function playSlow(t){
-  let u=new SpeechSynthesisUtterance(t);
-  u.rate=0.6; speechSynthesis.speak(u);
+/* === AUDIO FINAL === */
+function speakExample1(){
+  const t = example1.value.trim();
+  if(!t) return;
+  speechSynthesis.speak(new SpeechSynthesisUtterance(t));
 }
 
-function speakWord(){ if(mWord.value) play(mWord.value); }
-function speakExample(){
-  const text = mEx1.value || mEx2.value;
-  if(text){
-    let u=new SpeechSynthesisUtterance(text);
-    u.rate=0.6;
-    speechSynthesis.speak(u);
-  }
+function speakExample2(){
+  const t = example2.value.trim();
+  if(!t) return;
+  speechSynthesis.speak(new SpeechSynthesisUtterance(t));
 }
 
+/* === CSV === */
 function exportCSV(){
   let csv="word,pronunciation,meaning,example1,example2\n";
   data.forEach(v=>{
-    csv+=`"${v.word}","${v.pron||""}","${v.meaning||""}","${v.ex1||""}","${v.ex2||""}"\n`;
+    csv+=`"${v.word}","${v.pron||""}","${v.meaning||""}","${v.example1||""}","${v.example2||""}"\n`;
   });
   const a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"}));
@@ -268,16 +201,16 @@ function importCSV(){
     r.onload=()=>{
       const lines=r.result.split(/\r?\n/).filter(l=>l.trim());
       data=[];
-      lines.forEach((l,idx)=>{
+      lines.forEach((line,idx)=>{
         if(idx===0) return;
-        const c=l.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+        const c=line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
         if(!c) return;
         data.push({
           word:c[0]?.replace(/"/g,""),
           pron:c[1]?.replace(/"/g,""),
           meaning:c[2]?.replace(/"/g,""),
-          ex1:c[3]?.replace(/"/g,""),
-          ex2:c[4]?.replace(/"/g,"")
+          example1:c[3]?.replace(/"/g,""),
+          example2:c[4]?.replace(/"/g,"")
         });
       });
       render();
@@ -290,5 +223,6 @@ function importCSV(){
 
 render();
 </script>
+
 </body>
 </html>
