@@ -8,54 +8,26 @@
 <style>
 *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
 body{margin:0;background:#f5f7fb}
-
-header{
-  position:sticky;top:0;background:#fff;padding:16px;
-  box-shadow:0 2px 6px rgba(0,0,0,.08);z-index:10
-}
-
+header{position:sticky;top:0;background:#fff;padding:16px;box-shadow:0 2px 6px rgba(0,0,0,.08);z-index:10}
 h1{margin:0 0 6px;font-size:22px}
 .count{font-size:14px;color:#666}
-
 .controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-button{
-  border:none;padding:10px 14px;border-radius:10px;
-  font-size:14px;cursor:pointer
-}
+button{border:none;padding:10px 14px;border-radius:10px;font-size:14px;cursor:pointer}
 .import{background:#1e88e5;color:#fff}
 .export{background:#6a5acd;color:#fff}
 .deleteall{background:#e53935;color:#fff}
 .add{margin-left:auto;background:#e3f2fd;font-size:22px}
-
-.search{
-  width:100%;margin-top:10px;padding:10px;
-  border-radius:10px;border:1px solid #ccc
-}
-
+.search{width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid #ccc}
 main{padding:16px}
-
-.card{
-  background:#fff;border-radius:14px;padding:14px;
-  margin-bottom:12px;display:flex;
-  justify-content:space-between;align-items:center
-}
+.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
 .word{font-weight:700;font-size:18px}
 .ipa{font-style:italic;color:#555;margin-top:2px}
 .meaning{color:#333;margin-top:4px}
 .icons span{font-size:20px;margin-left:10px;cursor:pointer}
 
-.modal{
-  position:fixed;inset:0;background:rgba(0,0,0,.4);
-  display:none;align-items:center;justify-content:center;z-index:99
-}
-.modal-content{
-  background:#fff;width:90%;max-width:380px;
-  padding:16px;border-radius:14px
-}
-.modal-content input,.modal-content textarea{
-  width:100%;margin-bottom:8px;padding:10px;
-  border-radius:8px;border:1px solid #ccc
-}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:99}
+.modal-content{background:#fff;width:90%;max-width:380px;padding:16px;border-radius:14px}
+.modal-content input,.modal-content textarea{width:100%;margin-bottom:8px;padding:10px;border-radius:8px;border:1px solid #ccc}
 .modal-actions{display:flex;gap:8px;margin-top:10px}
 .save{background:#1e88e5;color:#fff;flex:1}
 .delete{background:#e53935;color:#fff;flex:1}
@@ -77,12 +49,7 @@ main{padding:16px}
     <button class="add" onclick="openModal()">＋</button>
   </div>
 
-  <input
-    id="search"
-    class="search"
-    placeholder="Search word or meaning..."
-    oninput="render()"
-  />
+  <input id="search" class="search" placeholder="Search word or meaning..." oninput="render()" />
 </header>
 
 <main id="list"></main>
@@ -122,7 +89,8 @@ function render(){
 
   count.innerText = `Total vocabulary: ${data.length} words`;
 
-  filtered.forEach((v,i)=>{
+  filtered.forEach(v=>{
+    const realIndex = data.indexOf(v); // 🔥 FIX UTAMA
     const d=document.createElement("div");
     d.className="card";
     d.innerHTML=`
@@ -134,7 +102,7 @@ function render(){
       <div class="icons">
         <span onclick="playWord('${v.word}')">🔊</span>
         <span onclick="playWordSlow('${v.word}')">🐢</span>
-        <span onclick="edit(${i})">✏️</span>
+        <span onclick="edit(${realIndex})">✏️</span>
       </div>
     `;
     list.appendChild(d);
@@ -152,12 +120,7 @@ function closeModal(){modal.style.display="none";}
 
 function save(){
   if(!mWord.value.trim()) return;
-  const v={
-    word:mWord.value.trim(),
-    pron:mPron.value.trim(),
-    meaning:mMeaning.value.trim(),
-    example:mExample.value.trim()
-  };
+  const v={word:mWord.value,pron:mPron.value,meaning:mMeaning.value,example:mExample.value};
   if(editIndex===null) data.push(v);
   else data[editIndex]=v;
   closeModal(); render();
@@ -181,32 +144,16 @@ function remove(){
 }
 
 function deleteAll(){
-  if(confirm("DELETE ALL DATA? Tidak bisa dikembalikan")){
-    data=[];
-    localStorage.removeItem("vocab");
-    render();
+  if(confirm("DELETE ALL DATA?")){
+    data=[]; localStorage.removeItem("vocab"); render();
   }
 }
 
 /* AUDIO */
-function playWord(t){
-  speechSynthesis.speak(new SpeechSynthesisUtterance(t));
-}
-function playWordSlow(t){
-  let u=new SpeechSynthesisUtterance(t);
-  u.rate=0.6;
-  speechSynthesis.speak(u);
-}
-function playExample(){
-  if(!mExample.value.trim()) return;
-  speechSynthesis.speak(new SpeechSynthesisUtterance(mExample.value));
-}
-function playExampleSlow(){
-  if(!mExample.value.trim()) return;
-  let u=new SpeechSynthesisUtterance(mExample.value);
-  u.rate=0.6;
-  speechSynthesis.speak(u);
-}
+function playWord(t){ speechSynthesis.speak(new SpeechSynthesisUtterance(t)); }
+function playWordSlow(t){ let u=new SpeechSynthesisUtterance(t); u.rate=0.6; speechSynthesis.speak(u); }
+function playExample(){ if(mExample.value) speechSynthesis.speak(new SpeechSynthesisUtterance(mExample.value)); }
+function playExampleSlow(){ if(mExample.value){ let u=new SpeechSynthesisUtterance(mExample.value); u.rate=0.6; speechSynthesis.speak(u);} }
 
 /* CSV */
 function exportCSV(){
@@ -215,9 +162,7 @@ function exportCSV(){
     csv+=`"${v.word}","${v.pron}","${v.meaning}","${v.example}"\n`;
   });
   const a=document.createElement("a");
-  a.href=URL.createObjectURL(
-    new Blob([csv],{type:"text/csv;charset=utf-8;"})
-  );
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"}));
   a.download="my-vocab-backup.csv";
   a.click();
 }
