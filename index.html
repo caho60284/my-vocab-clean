@@ -8,67 +8,55 @@
 <style>
 *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
 body{margin:0;background:#f5f7fb}
-header{position:sticky;top:0;background:#fff;padding:16px;box-shadow:0 2px 6px rgba(0,0,0,.08);z-index:10}
+
+header{
+  position:sticky;top:0;background:#fff;padding:16px;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);z-index:10
+}
+
 h1{margin:0 0 6px;font-size:22px}
 .count{font-size:14px;color:#666}
-.controls{display:flex;gap:10px;margin-top:10px}
-button{border:none;padding:10px 14px;border-radius:10px;font-size:14px;cursor:pointer}
+
+.controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+button{
+  border:none;padding:10px 14px;border-radius:10px;
+  font-size:14px;cursor:pointer
+}
 .import{background:#1e88e5;color:#fff}
 .export{background:#6a5acd;color:#fff}
+.deleteall{background:#e53935;color:#fff}
 .add{margin-left:auto;background:#e3f2fd;font-size:22px}
 
 .search{
-  width:100%;
-  margin-top:10px;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
+  width:100%;margin-top:10px;padding:10px;
+  border-radius:10px;border:1px solid #ccc
 }
 
 main{padding:16px}
+
 .card{
-  background:#fff;
-  border-radius:14px;
-  padding:14px;
-  margin-bottom:12px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center
+  background:#fff;border-radius:14px;padding:14px;
+  margin-bottom:12px;display:flex;
+  justify-content:space-between;align-items:center
 }
 .word{font-weight:700;font-size:18px}
-.pron{font-style:italic;color:#555;margin-top:2px}
-.meaning{color:#444;margin-top:4px}
-
-.icons span{font-size:20px;margin-left:8px;cursor:pointer}
+.ipa{font-style:italic;color:#555;margin-top:2px}
+.meaning{color:#333;margin-top:4px}
+.icons span{font-size:20px;margin-left:10px;cursor:pointer}
 
 .modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.4);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:99
+  position:fixed;inset:0;background:rgba(0,0,0,.4);
+  display:none;align-items:center;justify-content:center;z-index:99
 }
 .modal-content{
-  background:#fff;
-  width:90%;
-  max-width:380px;
-  padding:16px;
-  border-radius:14px
+  background:#fff;width:90%;max-width:380px;
+  padding:16px;border-radius:14px
 }
-.modal-content input{
-  width:100%;
-  margin-bottom:8px;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #ccc
+.modal-content input,.modal-content textarea{
+  width:100%;margin-bottom:8px;padding:10px;
+  border-radius:8px;border:1px solid #ccc
 }
-.modal-actions{
-  display:flex;
-  gap:10px;
-  margin-top:10px
-}
+.modal-actions{display:flex;gap:8px;margin-top:10px}
 .save{background:#1e88e5;color:#fff;flex:1}
 .delete{background:#e53935;color:#fff;flex:1}
 .cancel{background:#bbb;flex:1}
@@ -85,6 +73,7 @@ main{padding:16px}
   <div class="controls">
     <button class="import" onclick="importCSV()">📥 Import</button>
     <button class="export" onclick="exportCSV()">📤 Export</button>
+    <button class="deleteall" onclick="deleteAll()">🧨 Delete All</button>
     <button class="add" onclick="openModal()">＋</button>
   </div>
 
@@ -98,13 +87,12 @@ main{padding:16px}
 
 <main id="list"></main>
 
-<!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modal-content">
-    <input id="word" placeholder="Word">
-    <input id="pron" placeholder="Pronunciation (IPA)">
-    <input id="meaning" placeholder="Meaning">
-    <input id="example" placeholder="Example sentence">
+    <input id="mWord" placeholder="Word">
+    <input id="mPron" placeholder="Pronunciation (IPA)">
+    <input id="mMeaning" placeholder="Meaning">
+    <textarea id="mExample" placeholder="Example sentence"></textarea>
 
     <div class="modal-actions">
       <button class="audio" onclick="playExample()">🔊</button>
@@ -124,7 +112,6 @@ let data = JSON.parse(localStorage.getItem("vocab") || "[]");
 let editIndex = null;
 
 function render(){
-  const list = document.getElementById("list");
   const q = search.value.toLowerCase();
   list.innerHTML = "";
 
@@ -133,16 +120,15 @@ function render(){
     (v.meaning||"").toLowerCase().includes(q)
   );
 
-  document.getElementById("count").innerText =
-    `Total vocabulary: ${data.length} words`;
+  count.innerText = `Total vocabulary: ${data.length} words`;
 
   filtered.forEach((v,i)=>{
-    const d = document.createElement("div");
-    d.className = "card";
-    d.innerHTML = `
+    const d=document.createElement("div");
+    d.className="card";
+    d.innerHTML=`
       <div>
         <div class="word">${v.word}</div>
-        <div class="pron">${v.pron||""}</div>
+        <div class="ipa">${v.pron||""}</div>
         <div class="meaning">${v.meaning||""}</div>
       </div>
       <div class="icons">
@@ -158,39 +144,47 @@ function render(){
 }
 
 function openModal(){
-  editIndex = null;
-  word.value = pron.value = meaning.value = example.value = "";
-  modal.style.display = "flex";
+  editIndex=null;
+  mWord.value=mPron.value=mMeaning.value=mExample.value="";
+  modal.style.display="flex";
 }
-function closeModal(){ modal.style.display="none"; }
+function closeModal(){modal.style.display="none";}
 
 function save(){
-  if(!word.value.trim()) return alert("Word wajib diisi");
-  const v = {
-    word: word.value.trim(),
-    pron: pron.value.trim(),
-    meaning: meaning.value.trim(),
-    example: example.value.trim()
+  if(!mWord.value.trim()) return;
+  const v={
+    word:mWord.value.trim(),
+    pron:mPron.value.trim(),
+    meaning:mMeaning.value.trim(),
+    example:mExample.value.trim()
   };
-  if(editIndex === null) data.push(v);
-  else data[editIndex] = v;
+  if(editIndex===null) data.push(v);
+  else data[editIndex]=v;
   closeModal(); render();
 }
 
 function edit(i){
-  editIndex = i;
-  const v = data[i];
-  word.value = v.word;
-  pron.value = v.pron;
-  meaning.value = v.meaning;
-  example.value = v.example;
+  editIndex=i;
+  const v=data[i];
+  mWord.value=v.word;
+  mPron.value=v.pron;
+  mMeaning.value=v.meaning;
+  mExample.value=v.example;
   modal.style.display="flex";
 }
 
 function remove(){
-  if(editIndex !== null && confirm("Delete this word?")){
+  if(editIndex!==null && confirm("Delete this word?")){
     data.splice(editIndex,1);
     closeModal(); render();
+  }
+}
+
+function deleteAll(){
+  if(confirm("DELETE ALL DATA? Tidak bisa dikembalikan")){
+    data=[];
+    localStorage.removeItem("vocab");
+    render();
   }
 }
 
@@ -199,35 +193,37 @@ function playWord(t){
   speechSynthesis.speak(new SpeechSynthesisUtterance(t));
 }
 function playWordSlow(t){
-  let u = new SpeechSynthesisUtterance(t);
-  u.rate = 0.6;
+  let u=new SpeechSynthesisUtterance(t);
+  u.rate=0.6;
   speechSynthesis.speak(u);
 }
 function playExample(){
-  if(!example.value.trim()) return alert("Example kosong");
-  speechSynthesis.speak(new SpeechSynthesisUtterance(example.value));
+  if(!mExample.value.trim()) return;
+  speechSynthesis.speak(new SpeechSynthesisUtterance(mExample.value));
 }
 function playExampleSlow(){
-  if(!example.value.trim()) return alert("Example kosong");
-  let u = new SpeechSynthesisUtterance(example.value);
-  u.rate = 0.6;
+  if(!mExample.value.trim()) return;
+  let u=new SpeechSynthesisUtterance(mExample.value);
+  u.rate=0.6;
   speechSynthesis.speak(u);
 }
 
 /* CSV */
 function exportCSV(){
-  let csv = "word,pronunciation,meaning,example\n";
+  let csv="word,pronunciation,meaning,example\n";
   data.forEach(v=>{
-    csv += `"${v.word}","${v.pron}","${v.meaning}","${v.example}"\n`;
+    csv+=`"${v.word}","${v.pron}","${v.meaning}","${v.example}"\n`;
   });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"}));
-  a.download = "my-vocab-backup.csv";
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(
+    new Blob([csv],{type:"text/csv;charset=utf-8;"})
+  );
+  a.download="my-vocab-backup.csv";
   a.click();
 }
 
 function importCSV(){
-  const i = document.createElement("input");
+  const i=document.createElement("input");
   i.type="file"; i.accept=".csv";
   i.onchange=e=>{
     const r=new FileReader();
